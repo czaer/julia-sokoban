@@ -1,4 +1,4 @@
-include("gameState.jl")
+#include("gameState.jl")
 using Base.DataFmt
 
 function printBoard(board,inp,val)
@@ -7,26 +7,33 @@ function printBoard(board,inp,val)
   end
 end
 
-#todo, error handling
 function setUp(filename)
+    gameInput = "bad"
+    try
+        gameInput = open(filename)
+    catch e
+        return "could not open file"
+    end
 
-    gameInput = open(filename)
-    
-    inpSize = readdlm(IOBuffer(readline(gameInput)),Int)
-    inpWalls = readdlm(IOBuffer(readline(gameInput)),Int)
-    inpBoxes = readdlm(IOBuffer(readline(gameInput)),Int)
-    inpSwitches = readdlm(IOBuffer(readline(gameInput)),Int)
-    inpPlayer = readdlm(IOBuffer(readline(gameInput)),Int)
-    
-    initBoard = [EMPTY for i = 1:inpSize[2], j = 1:inpSize[1]]
-    printBoard(initBoard,inpWalls,WALL)
-    printBoard(initBoard,inpSwitches,SWITCH)
-    
-    initPlayer = [inpPlayer[1], inpPlayer[2]]
-    
-    initBoxes = [[inpBoxes[inpCount],inpBoxes[inpCount+1]] for inpCount = 2:2:length(inpBoxes)]
-    
-    initState = State(initPlayer,initBoxes)
+    try
+        inpSize = readdlm(IOBuffer(readline(gameInput)),Int)
+        inpWalls = readdlm(IOBuffer(readline(gameInput)),Int)
+        inpBoxes = readdlm(IOBuffer(readline(gameInput)),Int)
+        inpSwitches = readdlm(IOBuffer(readline(gameInput)),Int)
+        inpPlayer = readdlm(IOBuffer(readline(gameInput)),Int)
+        
+        initBoard = [EMPTY for i = 1:inpSize[2], j = 1:inpSize[1]]
+        printBoard(initBoard,inpWalls,WALL)
+        printBoard(initBoard,inpSwitches,SWITCH)
+        
+        initPlayer = [inpPlayer[1], inpPlayer[2]]
+        
+        initBoxes = [[inpBoxes[inpCount],inpBoxes[inpCount+1]] for inpCount = 2:2:length(inpBoxes)]
+        
+        initState = State(initPlayer,initBoxes)
+    catch e
+        return "Initial board parsing failed, check input file contents"
+    end
 end
 
 function stateToAscii(state)

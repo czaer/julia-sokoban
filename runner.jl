@@ -1,6 +1,5 @@
-#note, include just brings in files, resulting in one global scope
-#java style classes woule be modules in julia, which use keywords using and import
-#include("gameState.jl")
+#only include files with functions directly called in this file, otherwise error
+#include("gameState.jl") <no functions called direct, so not included
 include("io.jl")
 include("solve.jl")
 
@@ -10,6 +9,13 @@ println("Please enter a file containing the initial board state. e.g. input.txt 
 inputFilename = chomp(readline(STDIN))
 println("Loading game from $(inputFilename)") 
 gameState = setUp(inputFilename)
+
+while typeof(gameState) == String
+    println("Initial board setup had the following error, \"$(gameState)\". Please try again:")
+    inputFilename = chomp(readline(STDIN))
+    println("Loading game from $(inputFilename)") 
+    gameState = setUp(inputFilename)
+end
 
 #setup initial game state 
 #if io fail, recover and ask for a new filename
