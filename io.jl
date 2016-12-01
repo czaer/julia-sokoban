@@ -33,6 +33,10 @@ function stateToAscii(state)
     println(state)
 end
 
-function writeSolnToFile(fn)
-    
+#solnMoveSeq is char array [U, D, U, L...]
+function writeSolnToFile(fn, solnMoveSeq)
+    f = open(fn,"w")
+    print(f,string(length(solnMoveSeq)," "))
+    [print(f,string(i," ")) for i in solnMoveSeq]
+    close(f)
 end

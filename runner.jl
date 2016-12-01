@@ -27,6 +27,6 @@ finished, runTime, solnMoveSeq = doSolve(gameState, maxDuration)
 #success?
 println("Sokoban solving terminated in $(runTime) seconds.")
 println("Did it finish?  $(finished)")
-writeSolnToFile(inputFilename * ".out")
-println("The solution movelist has been written to file (intial state name + _solution")
+writeSolnToFile(inputFilename * ".soln",['U','D','D','R','L'])
+println("The solution movelist has been written to file $(inputFilename).soln")
 #animate if we have time
