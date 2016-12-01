@@ -47,7 +47,3 @@ function Move(state,board,dir)
   return newState
 end
 
-
-function stateToAscii(state)
-    println(state)
-end

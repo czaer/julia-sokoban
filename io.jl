@@ -28,3 +28,11 @@ function setUp(filename)
     
     initState = State(initPlayer,initBoxes)
 end
+
+function stateToAscii(state)
+    println(state)
+end
+
+function writeSolnToFile(fn)
+    
+end

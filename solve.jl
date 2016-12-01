@@ -1,5 +1,8 @@
 include("gameState.jl")
 
-function doSolve(dummyArg)
-  "dummy"
+function doSolve(dummyArg, maxDuration)
+    finished = false
+    runTime = maxDuration
+    solnMoveSeq = "dummySolnLRLRLR"
+    finished, runTime, solnMoveSeq
 end
