@@ -11,7 +11,7 @@ type StateWrapper
   move::Char
 end
 
-function getChildren(parent)
+function getChildren(parent::StateWrapper)
   directions = [u, d, l, r]
   children = StateWrapper[]
   for dir in directions
@@ -23,14 +23,24 @@ function getChildren(parent)
   return children
 end
 
+function getPath(state::StateWrapper)
+  pathlist = Char[]
+  if(state.parent == nothing)
+    return pathlist
+  end
+  while(state.parent != nothing)
+    unshift!(pathlist, state.move)
+    state = state.parent
+  end
+  return pathlist
+end
 
 fucntion findBestMove(currentState)
   openlist = []
   closedlist = []
   visitlist = []
   it = 0
-  current.s = currentState
-  current.g = 0
+  current = StateWrapper(nothing, currentState, 0, 0, nothing)
   current.f = current.g + current.s.h
   pahtlimit = currentState.h - 1
 
@@ -45,7 +55,7 @@ fucntion findBestMove(currentState)
       nodes += 1
       #h is 0 should be a goal node
       if(state.s.h == 0)
-        return state.s
+        return state
       end
 
       #do we need pathLimit?
