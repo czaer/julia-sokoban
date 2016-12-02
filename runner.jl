@@ -1,5 +1,5 @@
 #only include files with functions directly called in this file, otherwise error
-#include("gameState.jl") <no functions called direct, so not included
+include("gameState.jl") 
 include("io.jl")
 include("solve.jl")
 
@@ -7,14 +7,14 @@ println("Welcome to Sokoban!")
 println("Please enter a file containing the initial board state. e.g. input.txt :  ")
 #todo, handle quotes or no quotes
 inputFilename = chomp(readline(STDIN))
-println("Loading game from $(inputFilename)") 
-gameState = setUp(inputFilename)
+#println("Loading game from $(inputFilename)") 
+board,gameState = setUp(inputFilename)
 
 while typeof(gameState) == String
     println("Initial board setup had the following error, \"$(gameState)\". Please try again:")
     inputFilename = chomp(readline(STDIN))
     println("Loading game from $(inputFilename)") 
-    gameState = setUp(inputFilename)
+    board, gameState = setUp(inputFilename)
 end
 
 #setup initial game state 
@@ -26,7 +26,8 @@ println("We will now try to solve the game. Please enter a duration in seconds t
 maxDuration = chomp(readline(STDIN))
 println("Now solving for $(maxDuration) seconds.")
 
-finished, runTime, solnMoveSeq = doSolve(gameState, maxDuration)
+#println(computeHVal!(gameState,board))
+finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
 
 #run solver, timer
 #stop timer, validate solution

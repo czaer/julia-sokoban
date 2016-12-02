@@ -22,15 +22,28 @@ function setUp(filename)
         inpSwitches = readdlm(IOBuffer(readline(gameInput)),Int)
         inpPlayer = readdlm(IOBuffer(readline(gameInput)),Int)
         
-        initBoard = [EMPTY for i = 1:inpSize[2], j = 1:inpSize[1]]
-        printBoard(initBoard,inpWalls,WALL)
-        printBoard(initBoard,inpSwitches,SWITCH)
+
+        walls = [[inpWalls[inpCount],inpWalls[inpCount+1]] for inpCount = 2:2:length(inpWalls)]
+        switches = [[inpSwitches[inpCount],inpSwitches[inpCount+1]] for inpCount = 2:2:length(inpSwitches)]
+        #println(walls)
+        #println(typeof(Set(walls)))
+        #println(switches)
+
+        # initBoard = [EMPTY for i = 1:inpSize[2], j = 1:inpSize[1]]
+        # printBoard(initBoard,inpWalls,WALL)
+        # printBoard(initBoard,inpSwitches,SWITCH)
         
         initPlayer = [inpPlayer[1], inpPlayer[2]]
         
         initBoxes = [[inpBoxes[inpCount],inpBoxes[inpCount+1]] for inpCount = 2:2:length(inpBoxes)]
         
-        initState = State(initPlayer,initBoxes)
+        #println(initBoxes)
+        # initBoard = Board(inpSize[2], inpSize[1], Set(walls), Set(switches))
+        #         println(initBoard)
+        # println(length(initBoard.walls))
+        # initState = State(initPlayer,initBoxes)
+        # initBoard, initState
+        Board(inpSize[2], inpSize[1], Set(walls), Set(switches)) , State(initPlayer,initBoxes)
     catch e
         return "Initial board parsing failed, check input file contents"
     end
