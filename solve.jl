@@ -1,4 +1,4 @@
-include("gameState.jl")
+#include("gameState.jl")
 
 function doSolve(board, dummyArg, maxDuration)
     finished = false

@@ -1,3 +1,5 @@
+#__precompile__()
+
 EMPTY = 0
 WALL = 1
 SWITCH = 2
@@ -15,9 +17,10 @@ type Board
 end
 
 type State
-  guy::Array{Int64}
-  boxes::Array{Int64,1}
+  guy::Array{Int64,1}
+  boxes::Array{Array{Int64,1},1}
   hVal::Int64
+  State(guy, boxes) = new(guy,boxes,typemax(Int64))
 end
 
 function computeHVal!(state::State, board::Board)
@@ -26,7 +29,7 @@ function computeHVal!(state::State, board::Board)
     #too slow version. foreach switch, pathfind the nearest box. add up distances
     h = length(state.boxes)
     for box in state.boxes
-        if in(box, board.switches) 
+        if in(box, boincludeard.switches) 
             h-=1
         end
     end
@@ -73,4 +76,3 @@ end
 
 #   return newState
 # end
-
