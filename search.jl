@@ -1,4 +1,4 @@
-include("gameState.jl")
+#include("gameState.jl")
 
 #hVal(gamestate) will be heuristic
 #return the state we want to move to
@@ -11,11 +11,11 @@ type StateWrapper
   move::Char
 end
 
-function getChildren(parent::StateWrapper)
-  directions = [u, d, l, r]
+function getChildren(parent::StateWrapper, board::Board)
+  directions = ['U','D','L','R']
   children = StateWrapper[]
   for dir in directions
-    legal, child = move(dir, parent.s)
+    legal, child = move(dir, parent.s, board)
     if(legal)
       childwrapper = (parent, child, 0, 0, dir)
     end
