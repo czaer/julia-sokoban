@@ -1,4 +1,6 @@
 #__precompile__()
+Pkg.add("Match")
+using Match
 
 EMPTY = 0
 WALL = 1
@@ -21,6 +23,57 @@ type State
   boxes::Array{Array{Int64,1},1}
   hVal::Int64
   State(guy, boxes) = new(guy,boxes,typemax(Int64))
+end
+
+#if a move is allowed, generates a new state after the move and returns that and true
+#otherwise returns the original state and false
+function move(direction::Char, state::State, board::Board)
+    @match direction begin
+        'U' =>  begin
+                    guyDest = [state.guy[1]-1, state.guy[2]]
+                    pushBoxLoc = [guyDest[1]-1, guyDest[2]]
+                end
+        'D' => begin
+                    guyDest = [state.guy[1]+1, state.guy[2]]
+                    pushBoxLoc = [guyDest[1]+1, guyDest[2]]
+                end
+        'L' => begin
+                    guyDest = [state.guy[1], state.guy[2]-1]
+                    pushBoxLoc = [guyDest[1], guyDest[2]-1]
+                end
+        'R' => begin 
+                    guyDest = [state.guy[1], state.guy[2]+1]
+                    pushBoxLoc = [guyDest[1], guyDest[2]+1]
+                end
+    end
+
+    moveExecuted = false
+    newState = state
+
+    if in(guyDest, board.walls)
+        #noop
+    elseif in(guyDest, board.boxes)
+        if in(pushBoxLoc, board.walls)
+            moveExecuted = false
+            newState = state
+        elseif in(pushBoxLoc, state.boxes)
+            moveExecuted = false
+            newState = state
+        else
+            #is clear or switch
+            newState = copy(state)
+            newState.guy = guyDest
+            newState.boxes.push!(pushBoxLoc)
+            newState.boxes.pop!(guyDest)
+            moveExecuted = true
+        end
+    else
+        #there isa switch but not box or blank tile
+        newState = copy(state)
+        newState.guy = guyDest
+        moveExecuted = true
+    end
+    moveExecuted, newState
 end
 
 function computeHVal!(state::State, board::Board)

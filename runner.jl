@@ -16,6 +16,8 @@ function printBoard(board,inp,val)
   end
 end
 
+#assuming x,y pairs start at 1; 1,1 is the top left square
+#assuming outer edges explicityly contain walls; 1,1-n n,1-n 1-n,1 1-n,n should all be walls 
 function setUp(filename)
     gameInput = "bad"
     try
