@@ -9,6 +9,8 @@ type StateWrapper
   f
   #prev + move = State
   move::Char
+  StateWrapper(currentState) = new(nothing, currentState, 0, 0, nothing)
+  StateWrapper(prev, s, g, f, move) = new(prev, s, g, f, move)
 end
 
 function getChildren(parent::StateWrapper, board::Board)
@@ -35,12 +37,12 @@ function getPath(state::StateWrapper)
   return pathlist
 end
 
-fucntion findGoal(currentState, board)
+function findGoal(currentState, board)
   openlist = []
   closedlist = []
   visitlist = []
   it = 0
-  current = StateWrapper(nothing, currentState, 0, 0, nothing)
+  current = StateWrapper(currentState)
   current.f = current.g + current.s.h
   pahtlimit = currentState.h - 1
 
@@ -63,7 +65,7 @@ fucntion findGoal(currentState, board)
       if(state.f <= pathlimit)
         unshift!(closedlist, state)
         #todo add a getChildren function to return a list of StateWrapper
-        for(child in getChildren(state, board))
+        for child in getChildren(state, board)
           if child in closedlist
             continue
           end

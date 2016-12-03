@@ -2,7 +2,7 @@
 #println(LOAD_PATH)
 #push!(LOAD_PATH, "/Path/To/My/Module/")
 include("gameState.jl")
-
+include("search.jl")
 include("solve.jl")
 #using AIGameState
 
