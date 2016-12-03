@@ -60,7 +60,9 @@ function setUp(filename)
         #println(typeof(initPlayer))
         #println(typeof(initBoxes))
 
-        state = State(initPlayer,initBoxes)
+        state = State(initPlayer,initBoxes, board)
+        #println(typeof(state))
+        #println(state)
         board, state
     catch e
         println(e)

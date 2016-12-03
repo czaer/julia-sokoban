@@ -1,16 +1,16 @@
 #include("gameState.jl")
 
-#hVal(gamestate) will be heuristic
+#gameState.hVal will be heuristic
 #return the state we want to move to
 type StateWrapper
   prev::StateWrapper
   s::State
-  g
-  f
+  g::Int64
+  f::Int64
   #prev + move = State
   move::Char
-  StateWrapper(currentState) = new(nothing, currentState, 0, 0, nothing)
-  StateWrapper(prev, s, g, f, move) = new(prev, s, g, f, move)
+  #StateWrapper(currentState) = new(nothing, currentState, 0, 0, nothing)
+  #StateWrapper(prev, s, g, f, move) = new(prev, s, g, f, move)
 end
 
 function getChildren(parent::StateWrapper, board::Board)
@@ -42,9 +42,9 @@ function findGoal(currentState, board)
   closedlist = []
   visitlist = []
   it = 0
-  current = StateWrapper(currentState)
-  current.f = current.g + current.s.h
-  pahtlimit = currentState.h - 1
+  current = StateWrapper(nothing, currentState, 0, 0, nothing)
+  current.f = current.g + current.s.hVal
+  pahtlimit = currentState.hVal - 1
 
   while(true)
     pathlimit = pathlimit + 1
@@ -56,12 +56,12 @@ function findGoal(currentState, board)
       state = shift!(openlist)
       nodes += 1
       #h is 0 should be a goal node
-      if(state.s.h == 0)
+      if(state.s.hVal == 0)
         return state
       end
 
       #do we need pathLimit?
-      state.f = state.s.h + state.g
+      state.f = state.s.hVal + state.g
       if(state.f <= pathlimit)
         unshift!(closedlist, state)
         #todo add a getChildren function to return a list of StateWrapper
@@ -76,7 +76,7 @@ function findGoal(currentState, board)
           push!(seen, child)
 
           child.g = state.g + 1
-          child.f = child.g + child.s.h
+          child.f = child.g + child.s.hVal
           unshift!(openlist, child)
         end
       else
