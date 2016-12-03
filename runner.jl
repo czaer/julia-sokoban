@@ -4,7 +4,7 @@
 include("gameState.jl")
 
 include("solve.jl")
-#using AIGameState 
+#using AIGameState
 
 #using AISolve
 
@@ -17,7 +17,7 @@ function printBoard(board,inp,val)
 end
 
 #assuming x,y pairs start at 1; 1,1 is the top left square
-#assuming outer edges explicityly contain walls; 1,1-n n,1-n 1-n,1 1-n,n should all be walls 
+#assuming outer edges explicityly contain walls; 1,1-n n,1-n 1-n,1 1-n,n should all be walls
 function setUp(filename)
     gameInput = "bad"
     try
@@ -32,7 +32,7 @@ function setUp(filename)
         inpBoxes = readdlm(IOBuffer(readline(gameInput)),Int)
         inpSwitches = readdlm(IOBuffer(readline(gameInput)),Int)
         inpPlayer = readdlm(IOBuffer(readline(gameInput)),Int)
-        
+
         walls = [[inpWalls[inpCount],inpWalls[inpCount+1]] for inpCount = 2:2:length(inpWalls)]
         switches = [[inpSwitches[inpCount],inpSwitches[inpCount+1]] for inpCount = 2:2:length(inpSwitches)]
 #         println(walls)
@@ -44,11 +44,11 @@ function setUp(filename)
         # initBoard = [EMPTY for i = 1:inpSize[2], j = 1:inpSize[1]]
         # printBoard(initBoard,inpWalls,WALL)
         # printBoard(initBoard,inpSwitches,SWITCH)
-        
+
         initPlayer = [inpPlayer[1], inpPlayer[2]]
-        
+
         initBoxes = [[inpBoxes[inpCount],inpBoxes[inpCount+1]] for inpCount = 2:2:length(inpBoxes)]
-        
+
         #println(initBoxes)
         # initBoard = Board(inpSize[2], inpSize[1], Set(walls), Set(switches))
         #         println(initBoard)
@@ -56,7 +56,7 @@ function setUp(filename)
         # initState = State(initPlayer,initBoxes)
         # initBoard, initState
 
-        board = Board(inpSize[2], inpSize[1], Set(walls), Set(switches)) 
+        board = Board(inpSize[2], inpSize[1], Set(walls), Set(switches))
         #println(typeof(initPlayer))
         #println(typeof(initBoxes))
 
@@ -80,22 +80,22 @@ function writeSolnToFile(fn, solnMoveSeq)
     close(f)
 end
 
-println("Welcome to Sokoban!") 
+println("Welcome to Sokoban!")
 println("Please enter a file containing the initial board state. e.g. input.txt :  ")
 #todo, handle quotes or no quotes
 inputFilename = chomp(readline(STDIN))
-#println("Loading game from $(inputFilename)") 
+#println("Loading game from $(inputFilename)")
 board,gameState = setUp(inputFilename)
 #println(setUp(inputFilename))
 
 while typeof(gameState) == String
     println("Initial board setup had the following error, \"$(gameState)\". Please try again:")
     inputFilename = chomp(readline(STDIN))
-    println("Loading game from $(inputFilename)") 
+    println("Loading game from $(inputFilename)")
     board, gameState = setUp(inputFilename)
 end
 
-#setup initial game state 
+#setup initial game state
 #if io fail, recover and ask for a new filename
 println("The initial board state has been loaded. Here is the board")
 stateToAscii(gameState)
@@ -105,7 +105,11 @@ maxDuration = chomp(readline(STDIN))
 println("Now solving for $(maxDuration) seconds.")
 
 #println(computeHVal!(gameState,board))
-finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
+#finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
+goal = findGoal(gameState, board)
+for move in getPath(goal)
+  println(move)
+end
 
 #run solver, timer
 #stop timer, validate solution

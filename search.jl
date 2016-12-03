@@ -35,7 +35,7 @@ function getPath(state::StateWrapper)
   return pathlist
 end
 
-fucntion findBestMove(currentState)
+fucntion findGoal(currentState, board)
   openlist = []
   closedlist = []
   visitlist = []
@@ -63,7 +63,7 @@ fucntion findBestMove(currentState)
       if(state.f <= pathlimit)
         unshift!(closedlist, state)
         #todo add a getChildren function to return a list of StateWrapper
-        for(child in getChildren(state))
+        for(child in getChildren(state, board))
           if child in closedlist
             continue
           end
