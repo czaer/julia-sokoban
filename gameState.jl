@@ -52,7 +52,7 @@ function move(direction::Char, state::State, board::Board)
                     guyDest = [state.guy[1], state.guy[2]-1]
                     pushBoxLoc = [guyDest[1], guyDest[2]-1]
                 end
-        'R' => begin 
+        'R' => begin
                     guyDest = [state.guy[1], state.guy[2]+1]
                     pushBoxLoc = [guyDest[1], guyDest[2]+1]
                 end
@@ -63,7 +63,7 @@ function move(direction::Char, state::State, board::Board)
 
     if in(guyDest, board.walls)
         newState = state
-    elseif in(guyDest, board.boxes)
+    elseif in(guyDest, state.boxes)
         if in(pushBoxLoc, board.walls)
             newState = state
         elseif in(pushBoxLoc, state.boxes)
@@ -74,15 +74,17 @@ function move(direction::Char, state::State, board::Board)
             #newState.guy = guyDest
             setGuy(guyDest, newState, board)
             bxs = deepcopy(newState.boxes)
-            bxs.push!(pushBoxLoc)
-            bxs.pop!(guyDest)
+            push!(bxs, pushBoxLoc)
+            #not sure which way the logic flows here
+            #bxs.pop!(guyDest)
+            deleteat!(bxs, findin(bxs, guyDest))
             setBoxes(bxs, newState, board )
             moveExecuted = true
         end
     else
         #there isa switch but not box or blank tile
         newState = deepcopy(state)
-        setGuy(guyDest)
+        setGuy(guyDest, newState, board)
         moveExecuted = true
     end
     moveExecuted, newState
@@ -98,7 +100,7 @@ function computeHInit(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board:
     #too slow version. foreach switch, pathfind the nearest box. add up distances
     h = length(boxes)
     for box in boxes
-        if in(box, board.switches) 
+        if in(box, board.switches)
             h-=1
         end
     end

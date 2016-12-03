@@ -3,14 +3,16 @@
 #gameState.hVal will be heuristic
 #return the state we want to move to
 type StateWrapper
-  prev::StateWrapper
   s::State
   g::Int64
   f::Int64
   #prev + move = State
   move::Char
+  prev::StateWrapper
   #StateWrapper(currentState) = new(nothing, currentState, 0, 0, nothing)
   #StateWrapper(prev, s, g, f, move) = new(prev, s, g, f, move)
+  StateWrapper(s, g, f, move) = new(s, g, f, move)
+  StateWrapper(s, g, f, move, prev) = new(s, g, f, move, prev)
 end
 
 function getChildren(parent::StateWrapper, board::Board)
@@ -19,7 +21,8 @@ function getChildren(parent::StateWrapper, board::Board)
   for dir in directions
     legal, child = move(dir, parent.s, board)
     if(legal)
-      childwrapper = (parent, child, 0, 0, dir)
+      childwrapper = StateWrapper(child, 0, 0, dir, parent)
+      push!(children, childwrapper)
     end
   end
   return children
@@ -27,32 +30,32 @@ end
 
 function getPath(state::StateWrapper)
   pathlist = Char[]
-  if(state.parent == nothing)
+  if(state.prev == nothing)
     return pathlist
   end
-  while(state.parent != nothing)
+  while(state.prev != nothing)
     unshift!(pathlist, state.move)
-    state = state.parent
+    state = state.prev
   end
   return pathlist
 end
 
-function findGoal(currentState, board)
-  openlist = []
-  closedlist = []
-  visitlist = []
+function findGoal(currentState::State, board::Board)
+  openlist = StateWrapper[]
+  closedlist = StateWrapper[]
+  visitlist = StateWrapper[]
   it = 0
-  current = StateWrapper(nothing, currentState, 0, 0, nothing)
+  current = StateWrapper(currentState, 0, 0, 'x')
   current.f = current.g + current.s.hVal
-  pahtlimit = currentState.hVal - 1
+  pathlimit = currentState.hVal - 1
 
   while(true)
     pathlimit = pathlimit + 1
-    push!(open, current)
+    push!(openlist, current)
     seen = Set()
     nodes = 0
 
-    while(length(openlist > 0))
+    while(length(openlist) > 0)
       state = shift!(openlist)
       nodes += 1
       #h is 0 should be a goal node
@@ -80,12 +83,13 @@ function findGoal(currentState, board)
           unshift!(openlist, child)
         end
       else
-        unshift!(vistilist, state)
+        unshift!(visitlist, state)
       end
     end
 
     it += 1
-    if (len(visitlist) <= 0)
+    if (length(visitlist) <= 0)
+      println("didn't find answer")
       return nothing
     end
 
