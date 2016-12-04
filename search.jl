@@ -47,8 +47,8 @@ function findGoal(currentState::State, board::Board)
   it = 0
   current = StateWrapper(currentState, 0, 0, 'x')
   current.f = current.g + current.s.hVal
-  #pathlimit = currentState.hVal - 1
-  pathlimit = 10 #alex mentioned dfs works fast for small boards, lets try this?
+  pathlimit = currentState.hVal - 1
+  #pathlimit = 10 #alex mentioned dfs works fast for small boards, lets try this?
 
 
   while(true)
@@ -61,6 +61,7 @@ function findGoal(currentState::State, board::Board)
       state = shift!(openlist)
       nodes += 1
       #h is 0 should be a goal node
+      #println(state.s.hVal)
       if(state.s.hVal == 0)
         return state
       end
@@ -72,10 +73,13 @@ function findGoal(currentState::State, board::Board)
         #todo add a getChildren function to return a list of StateWrapper
         for child in getChildren(state, board)
           if child in closedlist
+            println("closed")
             continue
           end
 
           if child in seen
+            println("seen")
+
             continue
           end
           push!(seen, child)
