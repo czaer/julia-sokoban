@@ -23,7 +23,7 @@ type State
   guy::Array{Int64,1}
   boxes::Array{Array{Int64,1},1}
   hVal::Int64
-  State(guy, boxes, board::Board) = new(guy,boxes,computeHZero(guy, boxes, board))
+  State(guy, boxes, board::Board) = new(guy,boxes,computeHInit(guy, boxes, board))
 end
 
 function setGuy(newGuy::Array{Int64,1}, state::State, board::Board)
@@ -91,16 +91,18 @@ function move(direction::Char, state::State, board::Board)
 end
 
 function computeH!(state::State, board::Board)
-    state.hVal = computeHZero(state.guy, state.boxes, board)
+    state.hVal = computeHInit(state.guy, state.boxes, board)
 end
 
+# assuming length(boxes) == length(switches)
 function computeHInit(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
     #iff gameState = goal then hVal= 0
     #if guy can't move, return maxint
     #too slow version. foreach switch, pathfind the nearest box. add up distances
-    h = length(boxes)
+    h = length(board.switches)
     for box in boxes
         if in(box, board.switches)
+            #println("found")
             h-=1
         end
     end
@@ -108,7 +110,7 @@ function computeHInit(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board:
     #println(state.hVal)
 end
 
-function computeHZero(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
-    return 0
+# function computeHZero(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
+#     return 0
 
-end
+# end

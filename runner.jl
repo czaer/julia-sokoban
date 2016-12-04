@@ -112,8 +112,8 @@ println("Now solving for $(maxDuration) seconds.")
 
 #finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
 goal = @time findGoal(gameState, board)
-for move in getPath(goal)
-  println(move)
+for item in getPath(goal)
+  println(item)
 end
 
 

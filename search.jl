@@ -47,7 +47,9 @@ function findGoal(currentState::State, board::Board)
   it = 0
   current = StateWrapper(currentState, 0, 0, 'x')
   current.f = current.g + current.s.hVal
-  pathlimit = currentState.hVal - 1
+  #pathlimit = currentState.hVal - 1
+  pathlimit = 10 #alex mentioned dfs works fast for small boards, lets try this?
+
 
   while(true)
     pathlimit = pathlimit + 1
