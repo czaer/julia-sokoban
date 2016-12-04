@@ -4,6 +4,7 @@
 include("gameState.jl")
 include("search.jl")
 include("solve.jl")
+#Pkg.update()
 #using AIGameState
 
 #using AISolve
@@ -57,6 +58,8 @@ function setUp(filename)
         # initBoard, initState
 
         board = Board(inpSize[2], inpSize[1], Set(walls), Set(switches))
+        #println(typeof(board))
+
         #println(typeof(initPlayer))
         #println(typeof(initBoxes))
 
@@ -99,25 +102,24 @@ end
 
 #setup initial game state
 #if io fail, recover and ask for a new filename
-println("The initial board state has been loaded. Here is the board")
+println("The initial board state has been loaded. Here is the initial state variable")
 stateToAscii(gameState)
 
 println("We will now try to solve the game. Please enter a duration in seconds to compute. Enter \'0\' to run indefinitely")
 maxDuration = chomp(readline(STDIN))
 println("Now solving for $(maxDuration) seconds.")
 
-#println(computeHVal!(gameState,board))
+
 #finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
-goal = findGoal(gameState, board)
+goal = @time findGoal(gameState, board)
 for move in getPath(goal)
   println(move)
 end
 
-#run solver, timer
-#stop timer, validate solution
-#success?
-println("Sokoban solving terminated in $(runTime) seconds.")
-println("Did it finish?  $(finished)")
-writeSolnToFile(inputFilename * ".soln",['U','D','D','R','L'])
-println("The solution movelist has been written to file $(inputFilename).soln")
+
+# println("Sokoban solving terminated in $(runTime) seconds.")
+# println("Did it finish?  $(finished)")
+# writeSolnToFile(inputFilename * ".soln",['U','D','D','R','L'])
+# println("The solution movelist has been written to file $(inputFilename).soln")
+
 #animate if we have time

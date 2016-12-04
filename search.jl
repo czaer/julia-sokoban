@@ -30,10 +30,10 @@ end
 
 function getPath(state::StateWrapper)
   pathlist = Char[]
-  if(state.prev == nothing)
+  if(!isdefined(state, :prev))
     return pathlist
   end
-  while(state.prev != nothing)
+  while(isdefined(state, :prev))
     unshift!(pathlist, state.move)
     state = state.prev
   end

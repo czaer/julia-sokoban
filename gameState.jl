@@ -23,7 +23,7 @@ type State
   guy::Array{Int64,1}
   boxes::Array{Array{Int64,1},1}
   hVal::Int64
-  State(guy, boxes, board::Board) = new(guy,boxes,computeHInit(guy, boxes, board))
+  State(guy, boxes, board::Board) = new(guy,boxes,computeHZero(guy, boxes, board))
 end
 
 function setGuy(newGuy::Array{Int64,1}, state::State, board::Board)
@@ -91,7 +91,7 @@ function move(direction::Char, state::State, board::Board)
 end
 
 function computeH!(state::State, board::Board)
-    state.hVal = computeHInit(state.guy, state.boxes, board)
+    state.hVal = computeHZero(state.guy, state.boxes, board)
 end
 
 function computeHInit(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
@@ -108,42 +108,7 @@ function computeHInit(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board:
     #println(state.hVal)
 end
 
+function computeHZero(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
+    return 0
 
-# function checkWall(board,loc)
-#   board[loc[1], loc[2]] == WALL
-# end
-
-# function checkSwitch(board,loc)
-#   board[loc[1], loc[2]] == SWITCH
-# end
-
-# function Move(state,board,dir)
-#   newState = State(state.Guy,state.Boxes)
-#   newState.Guy += dir
-
-#   if checkWall(board,newState.Guy)
-#     print("guywall!")
-#     return 0
-#   end
-
-#   for i in (1:length(newState.Boxes))
-#     box = newState.Boxes[i]
-#     if newState.Guy == box
-#       box += dir
-#       if checkWall(board,box)
-#         print("boxwall!")
-#         return 0
-#       end
-#       for oldbox in state.Boxes
-#         if box == oldbox
-#           print("boxbox!")
-#           return 0
-#         end
-#       end
-#       newState.Boxes[i] = box
-#       break
-#     end
-#   end
-
-#   return newState
-# end
+end
