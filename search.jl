@@ -22,9 +22,9 @@ function equalStates(x::State, y::State)
   if x.boxes != y.boxes
     return false
   end
-  if x.hVal != y.hVal
-    return false
-  end
+#   if x.hVal != y.hVal
+#     return false
+#   end
   return true
 end
 

@@ -23,7 +23,7 @@ type State
   guy::Array{Int64,1}
   boxes::Array{Array{Int64,1},1}
   hVal::Int64
-  State(guy, boxes, board::Board) = new(guy,boxes,computeHInit(guy, boxes, board))
+  State(guy, boxes, board::Board) = new(guy,boxes,computeHcl(guy, boxes, board))
 end
 
 function setGuy(newGuy::Array{Int64,1}, state::State, board::Board)
@@ -91,7 +91,7 @@ function move(direction::Char, state::State, board::Board)
 end
 
 function computeH!(state::State, board::Board)
-    state.hVal = computeHInit(state.guy, state.boxes, board)
+    state.hVal = computeHcl(state.guy, state.boxes, board)
 end
 
 # assuming length(boxes) == length(switches)
@@ -110,7 +110,27 @@ function computeHInit(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board:
     #println(state.hVal)
 end
 
-# function computeHZero(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
-#     return 0
+function computeHcl(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
+    totDist = 0
+    for box in boxes
+        clDist = clSwitchDist(box,board)
+        totDist += clDist
+    end
+    totDist
+end
 
-# end
+function clSwitchDist(box, board::Board)
+    vals = Int64[]
+    for switch in board.switches
+        push!(vals, abs(switch[1]-box[1])+abs(switch[2]-box[2]))
+        #println(vals)
+    end
+    minFuck = vals[1]
+    for fuckYou in vals
+        if fuckYou < minFuck
+            minFuck = fuckYou
+        end
+    end
+    minFuck
+end
+

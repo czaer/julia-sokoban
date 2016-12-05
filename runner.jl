@@ -1,3 +1,4 @@
+__precompile__()
 #only include files with functions directly called in this file, otherwise error
 #println(LOAD_PATH)
 #push!(LOAD_PATH, "/Path/To/My/Module/")
