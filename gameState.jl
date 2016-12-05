@@ -11,6 +11,7 @@ using Match
 # down = [1,0]
 # right = [0,1]
 
+
 type Board
     h::Int64
     v::Int64
@@ -20,11 +21,28 @@ end
 
 #use the set methods to modify fields of this type, we must recompute h
 type State
-  guy::Array{Int64,1}
-  boxes::Array{Array{Int64,1},1}
-  hVal::Int64
-  State(guy, boxes, board::Board) = new(guy,boxes,computeHcl(guy, boxes, board))
+    guy::Array{Int64,1}
+    boxes::Array{Array{Int64,1},1}
+    hVal::Int64
+    State(guy, boxes, board::Board) = new(guy,boxes,computeHcl(guy, boxes, board))
+    hash(x)  =  begin
+                hsh = squares[guy[1],guy[2]]
+                for box in x.boxes
+                    hsh = hsh $ squares[box[1],box[2]]
+                end
+                return hsh % 941083987
+            end  
+    ==(x,y) =   begin
+                    # x.guy == y.guy ? nothing : return false
+                    # x.guy == y.guy
+                    # x.boxes == y.boxes
+                    # return eq
+                    eq = false
+                    hash(x) == hash(y) ? eq=true : eq=false
+                    return eq
+                end
 end
+
 
 function setGuy(newGuy::Array{Int64,1}, state::State, board::Board)
     state.guy = newGuy

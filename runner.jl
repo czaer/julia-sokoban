@@ -11,6 +11,7 @@ include("solve.jl")
 #using AISolve
 
 using Base.DataFmt
+using Base.Collections
 
 function printBoard(board,inp,val)
   for inpCount in 2:2:length(inp)
@@ -101,6 +102,8 @@ while typeof(gameState) == String
     board, gameState = setUp(inputFilename)
 end
 
+const squares = rand(1:2^32,board.h, board.v) #Array{Int64,2}
+
 #setup initial game state
 #if io fail, recover and ask for a new filename
 println("The initial board state has been loaded. Here is the initial state variable")
@@ -112,7 +115,7 @@ println("Now solving for $(maxDuration) seconds.")
 
 
 #finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
-goal = @time findGoal(gameState, board)
+goal = @time findGoal2(gameState, board)
 for item in getPath(goal)
   println(item)
 end
