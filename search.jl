@@ -15,6 +15,29 @@ type StateWrapper
   StateWrapper(s, g, f, move, prev) = new(s, g, f, move, prev)
 end
 
+function equalStates(x::State, y::State)
+  if x.guy != y.guy
+    return false
+  end
+  if x.boxes != y.boxes
+    return false
+  end
+  if x.hVal != y.hVal
+    return false
+  end
+  return true
+end
+
+function inList(l, x::State)
+  for y in l
+    if equalStates(x, y)
+      return true
+    end
+  end
+  return false
+end
+
+
 function getChildren(parent::StateWrapper, board::Board)
   directions = ['U','D','L','R']
   children = StateWrapper[]
@@ -42,7 +65,7 @@ end
 
 function findGoal(currentState::State, board::Board)
   openlist = StateWrapper[]
-  closedlist = StateWrapper[]
+  closedlist = State[]
   visitlist = StateWrapper[]
   it = 0
   current = StateWrapper(currentState, 0, 0, 'x')
@@ -54,11 +77,14 @@ function findGoal(currentState::State, board::Board)
   while(true)
     pathlimit = pathlimit + 1
     push!(openlist, current)
-    seen = Set()
+    seen = State[]
     nodes = 0
 
     while(length(openlist) > 0)
       state = shift!(openlist)
+      #println("state: $state")
+      #println("openlist: $openlist")
+      #readline(STDIN)
       nodes += 1
       #h is 0 should be a goal node
       #println(state.s.hVal)
@@ -69,31 +95,38 @@ function findGoal(currentState::State, board::Board)
       #do we need pathLimit?
       state.f = state.s.hVal + state.g
       if(state.f <= pathlimit)
-        unshift!(closedlist, state)
-        #todo add a getChildren function to return a list of StateWrapper
+        unshift!(closedlist, state.s)
+        #println("closedlist: $closedlist")
+        #readline(STDIN)
+
         for child in getChildren(state, board)
-          if child in closedlist
-            println("closed")
+          if inList(closedlist, child.s)
+            #println("closed")
             continue
           end
 
-          if child in seen
-            println("seen")
-
+          if inList(seen, child.s)
+            #println("seen")
             continue
           end
-          push!(seen, child)
+          push!(seen, child.s)
+          #println("seen: $seen")
+          #readline(STDIN)
 
           child.g = state.g + 1
           child.f = child.g + child.s.hVal
           unshift!(openlist, child)
+          #println("openlist after add child: $openlist")
+          #readline(STDIN)
         end
       else
+        #println("moved to visit set")
         unshift!(visitlist, state)
       end
     end
 
     it += 1
+    println("it: $it")
     if (length(visitlist) <= 0)
       println("didn't find answer")
       return nothing
@@ -108,7 +141,7 @@ function findGoal(currentState::State, board::Board)
     pathlimit = low
 
     append!(openlist, visitlist)
-    visitlist = []
-    closedlist = []
+    visitlist = StateWrapper[]
+    closedlist = State[]
   end
 end
