@@ -99,15 +99,7 @@ code, goal, val = @time search4(gameState, board)
 println(val)
 #println(goal)
 println(getPath(goal))
-#Profile.print()
 
-# for item in getPath(goal)
-#   println(item)
-# end
-
-
-# println("Sokoban solving terminated in $(runTime) seconds.")
-# println("Did it finish?  $(finished)")
 writeSolnToFile(inputFilename * ".soln",getPath(goal))
 println("The solution movelist has been written to file $(inputFilename).soln")
 

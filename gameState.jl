@@ -302,13 +302,13 @@ function clSwitchDist(box, board::Board)
         push!(vals, abs(switch[1]-box[1])+abs(switch[2]-box[2]))
         #println(vals)
     end
-    minFuck = vals[1]
-    for fuckYou in vals
-        if fuckYou < minFuck
-            minFuck = fuckYou
+    mf = vals[1]
+    for fy in vals
+        if fy < mf
+            mf = fy
         end
     end
-    minFuck
+    mf
 end
 
 
