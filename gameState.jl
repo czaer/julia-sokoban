@@ -1,7 +1,14 @@
 #__precompile__()
 Pkg.add("Match")
+#Pkg.add("hashing")
+#Pkg.add("Base.isequal")
 using Match
 
+import Base.isequal
+import Base.hash
+
+# using hashing
+# using isequal
 # EMPTY = 0
 # WALL = 1
 # SWITCH = 2
@@ -22,25 +29,82 @@ end
 #use the set methods to modify fields of this type, we must recompute h
 type State
     guy::Array{Int64,1}
-    boxes::Array{Array{Int64,1},1}
+    #boxes::Array{Array{Int64,1},1}
+    boxes::Set{Array{Int64,1}}
     hVal::Int64
     State(guy, boxes, board::Board) = new(guy,boxes,computeHInitOld(guy, boxes, board))
-    hash(x)  =  begin
-                hsh = squares[guy[1],guy[2]]
-                for box in x.boxes
-                    hsh = hsh $ squares[box[1],box[2]]
-                end
-                return hsh % 941083987
-            end  
-    ==(x,y) =   begin
-                    # x.guy == y.guy ? nothing : return false
-                    # x.guy == y.guy
-                    # x.boxes == y.boxes
-                    # return eq
-                    eq = false
-                    hash(x) == hash(y) ? eq=true : eq=false
-                    return eq
-                end
+
+    # function isequal(A::State, B::State)
+    #     println("called eq")
+    #     A.guy[1] == B.guy[1] && A.guy[2] == B.guy[2] && A.boxes == B.boxes
+    # end
+    # function ==(A::State, B::State)
+    #     println("called eq")
+    #     A.guy[1] == B.guy[1] && A.guy[2] == B.guy[2] && A.boxes == B.boxes
+    # end
+    # function hash(x::State)
+    #     println("called hash1")
+    #     hsh = squares[x.guy[1],x.guy[2]]
+    #     for box in x.boxes
+    #         hsh = hsh $ squares[box[1],box[2]]
+    #     end
+    #     return hsh % 941083987
+    # end
+    # function hash(A::State, h::UInt64)
+    #     println("called hash2")
+    #     hsh = squares[x.guy[1],x.guy[2]] 
+    #     for box in x.boxes
+    #         hsh = hsh $ squares[box[1],box[2]]
+    #     end
+    #     return hash(hsh % 941083987 + h)
+    # end
+end
+
+function isequal(A::State, B::State)
+    #println("called eq")
+    A.guy[1] == B.guy[1] && A.guy[2] == B.guy[2] && A.boxes == B.boxes
+end
+
+# function ==(A::State, B::State)
+#     println("called eq")
+#     A.guy[1] == B.guy[1] && A.guy[2] == B.guy[2] && A.boxes == B.boxes
+# end
+
+# function hash(x::State)
+#     println("called hash1")
+#     hsh = squares[x.guy[1],x.guy[2]]
+#     for box in x.boxes
+#         hsh = hsh $ squares[box[1],box[2]]
+#     end
+#     return hsh % 941083987
+# end
+# function hash(A::State, h::UInt64)
+#     println("called hash2")
+#     hsh = squares[x.guy[1],x.guy[2]] 
+#     for box in x.boxes
+#         hsh = hsh $ squares[box[1],box[2]]
+#     end
+#     return hash(hsh % 941083987 + h)
+# end
+
+# function Base.hash(x::State)
+#     println("called hash1")
+#     return hash(x.guy) + hash(x.boxes)
+# end
+
+function Base.hash(x::State)
+    #println("called hash1")
+    hsh = squares[x.guy[1],x.guy[2]]
+    for box in x.boxes
+        hsh = hsh $ squares[box[1],box[2]]
+    end
+    #println(hsh % 941083987)
+    return hsh % 941083987
+end
+
+function Base.hash(A::State, h::UInt64)
+    println("called hash2")
+    return hash(x.guy) + hash(x.boxes) + hash(h)
 end
 
 
@@ -106,7 +170,10 @@ function move(direction::Char, state::State, board::Board)
             #bxs.pop!(guyDest)
             #println(guyDest)
             #println(findfirst(bxs, guyDest))
-            deleteat!(newState.boxes, findfirst(newState.boxes, guyDest))
+
+            #deleteat!(newState.boxes, findfirst(newState.boxes, guyDest))
+            delete!(newState.boxes,guyDest)
+            
             #println("5 boxes: $bxs")
             #setBoxes(bxs, newState, board )
             computeH!(newState,board)
@@ -123,7 +190,7 @@ function move(direction::Char, state::State, board::Board)
 end
 
 function computeH!(state::State, board::Board)
-    state.hVal = computeHcl(state.guy, state.boxes, board)
+    state.hVal = computeHInitOld(state.guy, state.boxes, board)
 end
 
 function generatePref(men::Array{Int64,1}, women::Array{Array{Int64,1},1})
@@ -227,7 +294,7 @@ function computeHInit(guy::Array{Int64,1}, boxes::Array{Array{Int64,1},1}, board
 end
 
 # assuming length(boxes) == length(switches)
-function computeHInitOld(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
+function computeHInitOld(guy::Array{Int64,1},boxes::Set{Array{Int64,1}}, board::Board)
     #iff gameState = goal then hVal= 0
     #if guy can't move, return maxint
     #too slow version. foreach switch, pathfind the nearest box. add up distances

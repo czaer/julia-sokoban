@@ -12,6 +12,8 @@ include("solve.jl")
 
 using Base.DataFmt
 using Base.Collections
+#import Base.==
+
 
 function printBoard(board,inp,val)
   for inpCount in 2:2:length(inp)
@@ -65,7 +67,7 @@ function setUp(filename)
         #println(typeof(initPlayer))
         #println(typeof(initBoxes))
 
-        state = State(initPlayer,initBoxes, board)
+        state = State(initPlayer,Set(initBoxes), board)
         #println(typeof(state))
         #println(state)
         board, state
@@ -95,7 +97,7 @@ inputFilename = chomp(readline(STDIN))
 board,gameState = setUp(inputFilename)
 #println(setUp(inputFilename))
 
-while typeof(gameState) == String
+while typeof(gameState) <: String
     println("Initial board setup had the following error, \"$(gameState)\". Please try again:")
     inputFilename = chomp(readline(STDIN))
     println("Loading game from $(inputFilename)")
@@ -115,9 +117,9 @@ println("Now solving for $(maxDuration) seconds.")
 
 
 #finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
-#closedlist = Dict{State,Int64}()
+closedlist = Dict{State,Int64}()
 code, goal, val = @time search4(gameState, board)
-#println(code)
+println(val)
 println(goal)
 println(getPath(goal))
 #Profile.print()

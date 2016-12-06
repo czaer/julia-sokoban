@@ -45,9 +45,10 @@ end
 
 function getChildren(parent::StateWrapper, board::Board)
   directions = ['U','D','L','R']
-  children = StateWrapper[]
+  children = Set{StateWrapper}()
   for dir in directions
     legal, child = move(dir, parent.s, board)
+          #println(child)
     if(legal)
       childwrapper = StateWrapper(child, parent.g+1, parent.g +1 + child.hVal , dir, parent)
       push!(children, childwrapper)
@@ -348,20 +349,31 @@ end
  function search!(node::StateWrapper, g::Int64, bound::Int64, board::Board)
     f = g + node.s.hVal
     if f > bound  
-       return "temp", node, f
+       return "hit_bound", node, f
     end
     if node.s.hVal == 0 
        return "found", node, f
     end
     min = typemax(Int64)
     mSucc = node
+    #println(length(getChildren(node, board) ))
     for succ in getChildren(node, board) 
-        code, n, t = search!(succ, g + 1, bound, board)
-        if code == "found" 
-            return code, n, t
+        oldVal = get(closedlist,succ.s,succ.g)
+
+        #readline(STDIN)
+        if oldVal < succ.g
+            #println("skip")
+            #println(succ.s)
+            continue 
+        else 
+            closedlist[succ.s] = succ.g
+            #println("updated")
         end
-        if t < min 
-            min = t
+        code, n, sf = search!(succ, g + 1, bound, board)
+        if code == "found" 
+            return code, n, sf
+        elseif sf < min 
+            min = sf
             mSucc = n
         end
     end 
