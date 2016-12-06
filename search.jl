@@ -343,6 +343,7 @@ function ida_star(root::StateWrapper, board::Board)
             return "not_found", n, -1
         end
         bound = t
+        #println(bound)
     end 
 end 
  

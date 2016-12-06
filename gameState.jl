@@ -32,32 +32,8 @@ type State
     #boxes::Array{Array{Int64,1},1}
     boxes::Set{Array{Int64,1}}
     hVal::Int64
-    State(guy, boxes, board::Board) = new(guy,boxes,computeHInitOld(guy, boxes, board))
+    State(guy, boxes, board::Board) = new(guy,boxes,computeHcl(guy, boxes, board))
 
-    # function isequal(A::State, B::State)
-    #     println("called eq")
-    #     A.guy[1] == B.guy[1] && A.guy[2] == B.guy[2] && A.boxes == B.boxes
-    # end
-    # function ==(A::State, B::State)
-    #     println("called eq")
-    #     A.guy[1] == B.guy[1] && A.guy[2] == B.guy[2] && A.boxes == B.boxes
-    # end
-    # function hash(x::State)
-    #     println("called hash1")
-    #     hsh = squares[x.guy[1],x.guy[2]]
-    #     for box in x.boxes
-    #         hsh = hsh $ squares[box[1],box[2]]
-    #     end
-    #     return hsh % 941083987
-    # end
-    # function hash(A::State, h::UInt64)
-    #     println("called hash2")
-    #     hsh = squares[x.guy[1],x.guy[2]] 
-    #     for box in x.boxes
-    #         hsh = hsh $ squares[box[1],box[2]]
-    #     end
-    #     return hash(hsh % 941083987 + h)
-    # end
 end
 
 function isequal(A::State, B::State)
@@ -108,15 +84,15 @@ function Base.hash(A::State, h::UInt64)
 end
 
 
-function setGuy(newGuy::Array{Int64,1}, state::State, board::Board)
-    state.guy = newGuy
-    computeH!(state, board)
-end
+# function setGuy(newGuy::Array{Int64,1}, state::State, board::Board)
+#     state.guy = newGuy
+#     computeH!(state, board)
+# end
 
-function setBoxes(newBoxes::Array{Array{Int64,1},1}, state::State, board::Board)
-    state.boxes = newBoxes
-    computeH!(state, board)
-end
+# function setBoxes(newBoxes::Array{Array{Int64,1},1}, state::State, board::Board)
+#     state.boxes = newBoxes
+#     computeH!(state, board)
+# end
 
 #if a move is allowed, generates a new state after the move and returns that and true
 #otherwise returns the original state and false
@@ -150,14 +126,14 @@ function move(direction::Char, state::State, board::Board)
 
     if in(guyDest, board.walls)
         newState = state
-        #println("1 newstate: $newState")
+    elseif in(badLocs, pushBoxLoc)
+        #if we put box here we can't get it to a goal ever
+        newState = state
     elseif in(guyDest, state.boxes)
         if in(pushBoxLoc, board.walls)
             newState = state
-            #println("2 newstate: $newState")
         elseif in(pushBoxLoc, state.boxes)
             newState = state
-            #println("3 newstate: $newState")
         else
             #is clear or switch
             newState = deepcopy(state)
@@ -183,14 +159,16 @@ function move(direction::Char, state::State, board::Board)
     else
         #there isa switch but not box or blank tile
         newState = deepcopy(state)
-        setGuy(guyDest, newState, board)
+        newState.guy = guyDest
+        computeH!(newState,board)
+        #setGuy(guyDest, newState, board)
         moveExecuted = true
     end
     moveExecuted, newState
 end
 
 function computeH!(state::State, board::Board)
-    state.hVal = computeHInitOld(state.guy, state.boxes, board)
+    state.hVal = computeHcl(state.guy, state.boxes, board)
 end
 
 function generatePref(men::Array{Int64,1}, women::Array{Array{Int64,1},1})
@@ -309,7 +287,7 @@ function computeHInitOld(guy::Array{Int64,1},boxes::Set{Array{Int64,1}}, board::
     #println(state.hVal)
 end
 
-function computeHcl(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
+function computeHcl(guy::Array{Int64,1},boxes::Set{Array{Int64,1}}, board::Board)
     totDist = 0
     for box in boxes
         clDist = clSwitchDist(box,board)
@@ -333,3 +311,34 @@ function clSwitchDist(box, board::Board)
     minFuck
 end
 
+
+function oneBoxDL(state::State, board::Board)
+    allSquares = Set(reshape([[h,v] for h in 1:board.h, v in 1:board.v],1, board.h*board.v))
+    badSquares = Set{Array{Int64,1}}()
+    for wall in board.walls
+        delete!(allSquares, wall)
+    end
+    for square in allSquares
+        canReach = false
+        for goal in board.switches
+            if reachable(square, goal, state, board)
+                canReach = true
+                break
+            end
+        end
+        if !canReach
+            push!(badSquares, square)
+        end
+    end
+    badSquares
+end
+
+function reachable(src::Array{Int64,1},dest::Array{Int64,1},state::State, board::Board)
+    state2 = deepcopy(state)
+    state2.boxes = Set([src])
+    board2 = deepcopy(board)
+    board2.switches = Set([dest])
+    computeH!(state2,board2)
+    code, goal, val = search4(state2,board2)
+    return code == "found"
+end

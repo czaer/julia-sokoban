@@ -111,10 +111,16 @@ const squares = rand(1:2^32,board.h, board.v) #Array{Int64,2}
 println("The initial board state has been loaded. Here is the initial state variable")
 stateToAscii(gameState)
 
-println("We will now try to solve the game. Please enter a duration in seconds to compute. Enter \'0\' to run indefinitely")
-maxDuration = chomp(readline(STDIN))
-println("Now solving for $(maxDuration) seconds.")
+println("computing static deadlocks")
+# println("We will now try to solve the game. Please enter a duration in seconds to compute. Enter \'0\' to run indefinitely")
+# maxDuration = chomp(readline(STDIN))
+# println("Now solving for $(maxDuration) seconds.")
 
+#we use our search to find these simple deadlocks, so need to set closedlist/badlocs
+closedlist = Dict{State,Int64}()
+badLocs = Set{Array{Int64,1}}()
+badLocs = oneBoxDL(gameState, board)
+println("DL completed, main solving now")
 
 #finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
 closedlist = Dict{State,Int64}()
