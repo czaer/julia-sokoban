@@ -24,7 +24,7 @@ type State
     guy::Array{Int64,1}
     boxes::Array{Array{Int64,1},1}
     hVal::Int64
-    State(guy, boxes, board::Board) = new(guy,boxes,computeHcl(guy, boxes, board))
+    State(guy, boxes, board::Board) = new(guy,boxes,computeHInitOld(guy, boxes, board))
     hash(x)  =  begin
                 hsh = squares[guy[1],guy[2]]
                 for box in x.boxes
@@ -122,7 +122,7 @@ function move(direction::Char, state::State, board::Board)
 end
 
 function computeH!(state::State, board::Board)
-    state.hVal = computeHcl(state.guy, state.boxes, board)
+    state.hVal = computeHInitOld(state.guy, state.boxes, board)
 end
 
 function generatePref(men::Array{Int64,1}, women::Array{Array{Int64,1},1})

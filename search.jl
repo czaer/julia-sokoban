@@ -165,6 +165,7 @@ function findGoal2(currentState::State, board::Board)
 
     while(true)
                 println(it)
+        println(length(openlist))
         visitlist = Set{StateWrapper}()
         #seen = Set{State}()
         #nodes = 0
@@ -236,3 +237,133 @@ function findGoal2(currentState::State, board::Board)
     end
 
 end
+
+function findGoal3(currentState::State, board::Board)
+    openlist = Collections.PriorityQueue()
+    closedlist = Dict{State,Int64}()
+    current = StateWrapper(currentState, 0, 0, 'x')
+    current.f = current.g + current.s.hVal
+    enqueue!(openlist, current, current.f)
+    #pathlimit = currentState.hVal - 1
+    pathlimit = 10 #alex mentioned dfs works fast for small boards, lets try this?
+    it = 0
+
+    while(true)
+                #println(it)
+        #println(length(openlist))
+        visitlist = Set{StateWrapper}()
+        #seen = Set{State}()
+        #nodes = 0
+
+        while(length(openlist) > 0)
+            state = dequeue!(openlist)
+            if(state.s.hVal == 0)
+                return state
+            end
+            #nodes += 1
+            #state.f = state.s.hVal + state.g
+            if state.f <= pathlimit
+                #push!(closedlist, state)
+                closedlist[state.s] = state.g 
+    #            push!(closedlist, state.s)
+                for child in getChildren(state, board)
+                    oldVal = get(closedlist,child.s,child.g)
+                    oldVal < child.g ?  continue : closedlist[child.s] = child.g
+                    
+                    # if haskey(closedlist, child)
+                    #     #println("closed")
+                    #     continue
+                    # end
+
+                    # if in(closedlist, child.s)
+                    #     #println("closed")
+                    #     continue
+                    # end
+
+                    # if in(seen, child.s)
+                    #     #println("seen")
+                    #     continue
+                    # end
+                    # push!(seen, child.s)
+
+                    # child.g = state.g + 1
+                    # child.f = child.g + child.s.hVal
+
+                    #enqueue!(openlist, child)
+                    push!(visitlist, child)
+                end
+                break
+            else
+                #println("moved to visit set")
+                push!(visitlist, state)
+            end
+        end
+
+        
+        # println("it: $it")
+        # if (length(visitlist) <= 0)
+        #     println("didn't find answer")
+        #     return nothing
+        # end
+
+        # low = visitlist[1].f
+        # for x in visitlist
+        #     if x.f < low
+        #     low = x.f
+        #     end
+        # end
+        # pathlimit = low
+        it += 1
+
+        pathlimit = pathlimit + 1
+        for item in visitlist
+            enqueue!(openlist, item, item.f)
+        end
+        #enqueue!(openlist, visitlist)
+    end
+
+end
+
+function search4(state::State, board::Board)
+    root = StateWrapper(state, 0, 0, 'x')
+    root.f = root.g + root.s.hVal
+    ida_star(root, board)
+end
+ 
+function ida_star(root::StateWrapper, board::Board)
+    bound = root.s.hVal
+    while true
+        println(bound)
+        code, n, t = search(root, 0, bound, board)
+        if code == "found"  
+            return code, n, bound
+        end
+        if t == typemax(Int64) 
+            return "not_found", n, -1
+        end
+        bound = t
+    end 
+end 
+ 
+ function search(node::StateWrapper, g::Int64, bound::Int64, board::Board)
+    f = g + node.s.hVal
+    if f > bound  
+       return "temp", node, f
+    end
+    if node.s.hVal == 0 
+       return "found", node, f
+    end
+    min = typemax(Int64)
+    mSucc = node
+    for succ in getChildren(node, board) 
+        code, n, t = search(succ, g + 1, bound, board)
+        if code == "found" 
+            return code, n, t
+        end
+        if t < min 
+            min = t
+            mSucc = n
+        end
+    end 
+    return "min", mSucc, min
+ end 
