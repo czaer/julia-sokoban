@@ -334,7 +334,7 @@ end
 function ida_star(root::StateWrapper, board::Board)
     bound = root.s.hVal
     while true
-        println(bound)
+        #println(bound)
         code, n, t = search!(root, 0, bound, board)
         if code == "found"  
             return code, n, bound
