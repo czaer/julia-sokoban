@@ -98,17 +98,18 @@ function move(direction::Char, state::State, board::Board)
             #is clear or switch
             newState = deepcopy(state)
             #println("4 newstate: $newState")
-            #newState.guy = guyDest
-            setGuy(guyDest, newState, board)
-            bxs = deepcopy(newState.boxes)
-            push!(bxs, pushBoxLoc)
+            newState.guy = guyDest
+            #setGuy(guyDest, newState, board)
+            #bxs = deepcopy(newState.boxes)
+            push!(newState.boxes, pushBoxLoc)
             #not sure which way the logic flows here
             #bxs.pop!(guyDest)
             #println(guyDest)
             #println(findfirst(bxs, guyDest))
-            deleteat!(bxs, findfirst(bxs, guyDest))
+            deleteat!(newState.boxes, findfirst(newState.boxes, guyDest))
             #println("5 boxes: $bxs")
-            setBoxes(bxs, newState, board )
+            #setBoxes(bxs, newState, board )
+            computeH!(newState,board)
             #println("6 newstate: $newState")
             moveExecuted = true
         end
@@ -122,7 +123,7 @@ function move(direction::Char, state::State, board::Board)
 end
 
 function computeH!(state::State, board::Board)
-    state.hVal = computeHInitOld(state.guy, state.boxes, board)
+    state.hVal = computeHcl(state.guy, state.boxes, board)
 end
 
 function generatePref(men::Array{Int64,1}, women::Array{Array{Int64,1},1})

@@ -115,7 +115,8 @@ println("Now solving for $(maxDuration) seconds.")
 
 
 #finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
-code, goal, val = search4(gameState, board)
+#closedlist = Dict{State,Int64}()
+code, goal, val = @time search4(gameState, board)
 #println(code)
 println(goal)
 println(getPath(goal))

@@ -334,7 +334,7 @@ function ida_star(root::StateWrapper, board::Board)
     bound = root.s.hVal
     while true
         println(bound)
-        code, n, t = search(root, 0, bound, board)
+        code, n, t = search!(root, 0, bound, board)
         if code == "found"  
             return code, n, bound
         end
@@ -345,7 +345,7 @@ function ida_star(root::StateWrapper, board::Board)
     end 
 end 
  
- function search(node::StateWrapper, g::Int64, bound::Int64, board::Board)
+ function search!(node::StateWrapper, g::Int64, bound::Int64, board::Board)
     f = g + node.s.hVal
     if f > bound  
        return "temp", node, f
@@ -356,7 +356,7 @@ end
     min = typemax(Int64)
     mSucc = node
     for succ in getChildren(node, board) 
-        code, n, t = search(succ, g + 1, bound, board)
+        code, n, t = search!(succ, g + 1, bound, board)
         if code == "found" 
             return code, n, t
         end
