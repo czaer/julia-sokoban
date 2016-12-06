@@ -32,8 +32,20 @@ type State
     #boxes::Array{Array{Int64,1},1}
     boxes::Set{Array{Int64,1}}
     hVal::Int64
-    State(guy, boxes, board::Board) = new(guy,boxes,computeHcl(guy, boxes, board))
+    # State(guy, boxes, board::Board) = new(guy,boxes,computeHcl(guy, boxes, board))
+    State(guy, boxes, board::Board, init::Bool) = init ? new(guy,boxes,computeHcl(guy, boxes, board)) : new(guy,boxes,mcm( boxes, board, lookup))
+end
 
+type LocTup
+    box::Array{Int64,1}
+    switch::Array{Int64,1}
+end
+# function isequal(A::LocTup, B::LocTup)
+#     #println("called eq")
+#     A.guy[1] == B.guy[1] && A.guy[2] == B.guy[2] && A.boxes == B.boxes
+# end
+function Base.hash(x::LocTup)
+    hash(hash(x.box) + hash(x.switch)) 
 end
 
 function isequal(A::State, B::State)
@@ -96,7 +108,7 @@ end
 
 #if a move is allowed, generates a new state after the move and returns that and true
 #otherwise returns the original state and false
-function move(direction::Char, state::State, board::Board)
+function move(direction::Char, state::State, board::Board, init::Bool)
   #println("initial state: $state")
     @match direction begin
         'U' =>  begin
@@ -126,7 +138,7 @@ function move(direction::Char, state::State, board::Board)
 
     if in(guyDest, board.walls)
         newState = state
-    elseif in(badLocs, pushBoxLoc)
+    elseif !init && (get(lookup, LocTup(pushBoxLoc,first(board.switches)), typemax(Int64)) >= typemax(Int64))
         #if we put box here we can't get it to a goal ever
         newState = state
     elseif in(guyDest, state.boxes)
@@ -152,7 +164,7 @@ function move(direction::Char, state::State, board::Board)
             
             #println("5 boxes: $bxs")
             #setBoxes(bxs, newState, board )
-            computeH!(newState,board)
+            computeH!(newState,board, init)
             #println("6 newstate: $newState")
             moveExecuted = true
         end
@@ -160,15 +172,15 @@ function move(direction::Char, state::State, board::Board)
         #there isa switch but not box or blank tile
         newState = deepcopy(state)
         newState.guy = guyDest
-        computeH!(newState,board)
+        computeH!(newState,board,init)
         #setGuy(guyDest, newState, board)
         moveExecuted = true
     end
     moveExecuted, newState
 end
 
-function computeH!(state::State, board::Board)
-    state.hVal = computeHcl(state.guy, state.boxes, board)
+function computeH!(state::State, board::Board, init::Bool)
+    init ? state.hVal = computeHcl(state.guy, state.boxes, board) : state.hVal = mcm( state.boxes, board, lookup)
 end
 
 function generatePref(men::Array{Int64,1}, women::Array{Array{Int64,1},1})
@@ -312,33 +324,79 @@ function clSwitchDist(box, board::Board)
 end
 
 
+# function oneBoxDL(state::State, board::Board)
+#     allSquares = Set(reshape([[h,v] for h in 1:board.h, v in 1:board.v],1, board.h*board.v))
+#     badSquares = Set{Array{Int64,1}}()
+#     for wall in board.walls
+#         delete!(allSquares, wall)
+#     end
+#     for square in allSquares
+#         canReach = false
+#         for goal in board.switches
+#             if reachable(square, goal, state, board)
+#                 canReach = true
+#                 break
+#             end
+#         end
+#         if !canReach
+#             push!(badSquares, square)
+#         end
+#     end
+#     badSquares
+# end
+
+
+
 function oneBoxDL(state::State, board::Board)
     allSquares = Set(reshape([[h,v] for h in 1:board.h, v in 1:board.v],1, board.h*board.v))
-    badSquares = Set{Array{Int64,1}}()
+    lookup = Dict{LocTup,Int64}()
     for wall in board.walls
         delete!(allSquares, wall)
     end
     for square in allSquares
-        canReach = false
         for goal in board.switches
-            if reachable(square, goal, state, board)
-                canReach = true
-                break
-            end
-        end
-        if !canReach
-            push!(badSquares, square)
+            lookup[LocTup(square, goal)] = reachable(square, goal, state, board)
         end
     end
-    badSquares
+    lookup
 end
 
+# function reachable(src::Array{Int64,1},dest::Array{Int64,1},state::State, board::Board)
+#     state2 = deepcopy(state)
+#     state2.boxes = Set([src])
+#     board2 = deepcopy(board)
+#     board2.switches = Set([dest])
+#     computeH!(state2,board2)
+#     code, goal, val = search4(state2,board2)
+#     return code == "found"
+# end
 function reachable(src::Array{Int64,1},dest::Array{Int64,1},state::State, board::Board)
     state2 = deepcopy(state)
     state2.boxes = Set([src])
     board2 = deepcopy(board)
     board2.switches = Set([dest])
-    computeH!(state2,board2)
-    code, goal, val = search4(state2,board2)
-    return code == "found"
+    computeH!(state2,board2,true)
+    code, goal, val = search4(state2,board2, true)
+    return val
+end
+
+function mcm(state, board, lookup)
+    cost = typemax(Int64)
+    arr = unique(board.switches)
+    numSwitches = length(arr)
+    boxArr = unique(state.boxes)
+    println(length(boxArr) != numSwitches) 
+    switchPerms = typeof(arr)[]
+    for i in 1:lfact(numSwitches)
+        #probabilistically compute some samples of switchXbox
+        switchPerms[i] = shuffle(arr)
+    end
+    for perm in switchPerms
+        tot =0
+        for i in 1:numSwitches
+            tot += get(lookup, LocTup(boxArr[i],perm[i]),typemax(Int64))
+        end
+        tot < cost ? cost = tot : nothing
+    end
+    cost
 end

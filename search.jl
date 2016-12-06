@@ -43,11 +43,11 @@ function inList(l, x::State)
 end
 
 
-function getChildren(parent::StateWrapper, board::Board)
+function getChildren(parent::StateWrapper, board::Board, init::Bool)
   directions = ['U','D','L','R']
   children = Set{StateWrapper}()
   for dir in directions
-    legal, child = move(dir, parent.s, board)
+    legal, child = move(dir, parent.s, board, init)
           #println(child)
     if(legal)
       childwrapper = StateWrapper(child, parent.g+1, parent.g +1 + child.hVal , dir, parent)
@@ -325,17 +325,19 @@ function findGoal3(currentState::State, board::Board)
 
 end
 
-function search4(state::State, board::Board)
+function search4(state::State, board::Board, init::Bool)
     root = StateWrapper(state, 0, 0, 'x')
     root.f = root.g + root.s.hVal
-    ida_star(root, board)
+    ida_star(root, board, init)
 end
  
-function ida_star(root::StateWrapper, board::Board)
+function ida_star(root::StateWrapper, board::Board, init::Bool)
     bound = root.s.hVal
     while true
         println(bound)
-        code, n, t = search!(root, 0, bound, board)
+        code, n, t = search!(root, 0, bound, board, init)
+                    println(code)
+
         if code == "found"  
             return code, n, bound
         end
@@ -347,7 +349,7 @@ function ida_star(root::StateWrapper, board::Board)
     end 
 end 
  
- function search!(node::StateWrapper, g::Int64, bound::Int64, board::Board)
+ function search!(node::StateWrapper, g::Int64, bound::Int64, board::Board, init::Bool)
     f = g + node.s.hVal
     if f > bound  
        return "hit_bound", node, f
@@ -358,19 +360,19 @@ end
     min = typemax(Int64)
     mSucc = node
     #println(length(getChildren(node, board) ))
-    for succ in getChildren(node, board) 
+    for succ in getChildren(node, board, init) 
         oldVal = get(closedlist,succ.s,succ.g)
 
         #readline(STDIN)
         if oldVal < succ.g
             #println("skip")
-            #println(succ.s)
+            println(succ.s)
             continue 
         else 
             closedlist[succ.s] = succ.g
             #println("updated")
         end
-        code, n, sf = search!(succ, g + 1, bound, board)
+        code, n, sf = search!(succ, g + 1, bound, board, init)
         if code == "found" 
             return code, n, sf
         elseif sf < min 
