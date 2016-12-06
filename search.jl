@@ -48,7 +48,7 @@ function getChildren(parent::StateWrapper, board::Board, init::Bool)
   children = Set{StateWrapper}()
   for dir in directions
     legal, child = move(dir, parent.s, board, init)
-          #println(child)
+          #println(legal, "  ",child)
     if(legal)
       childwrapper = StateWrapper(child, parent.g+1, parent.g +1 + child.hVal , dir, parent)
       push!(children, childwrapper)
@@ -326,23 +326,32 @@ function findGoal3(currentState::State, board::Board)
 end
 
 function search4(state::State, board::Board, init::Bool)
+
+
     root = StateWrapper(state, 0, 0, 'x')
     root.f = root.g + root.s.hVal
-    ida_star(root, board, init)
+
+    a  = ida_star(root, board, init)
+            # println("search called")
+            # println(a)
+                #readline(STDIN)
+
+    a
 end
  
 function ida_star(root::StateWrapper, board::Board, init::Bool)
     bound = root.s.hVal
     while true
-        println(bound)
+        #println(bound)
+
         code, n, t = search!(root, 0, bound, board, init)
-                    println(code)
+                    #println(t)
 
         if code == "found"  
             return code, n, bound
         end
         if t == typemax(Int64) 
-            return "not_found", n, -1
+            return "not_found", n, typemax(Int64)
         end
         bound = t
         #println(bound)
@@ -359,14 +368,15 @@ end
     end
     min = typemax(Int64)
     mSucc = node
-    #println(length(getChildren(node, board) ))
+
     for succ in getChildren(node, board, init) 
         oldVal = get(closedlist,succ.s,succ.g)
+            #println(succ.g)
 
-        #readline(STDIN)
+        # readline(STDIN)
         if oldVal < succ.g
             #println("skip")
-            println(succ.s)
+            #println(succ.s)
             continue 
         else 
             closedlist[succ.s] = succ.g

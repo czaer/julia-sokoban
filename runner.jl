@@ -120,7 +120,13 @@ println("computing static deadlocks")
 closedlist = Dict{State,Int64}()
 badLocs = Set{Array{Int64,1}}()
 lookup = oneBoxDL(gameState, board)
+#println(lookup)
 println("heuristic build completed, main solving now")
+            # println(lookup[LocTup([2,2],[4,2])])
+            # println(lookup[LocTup([3,2],[4,2])])
+            # println(lookup[LocTup([4,2],[4,2])])
+
+#readline(STDIN)
 
 #finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
 closedlist = Dict{State,Int64}()
