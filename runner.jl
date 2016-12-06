@@ -87,6 +87,7 @@ function writeSolnToFile(fn, solnMoveSeq)
     close(f)
 end
 
+function main()
 println("Welcome to Sokoban!")
 println("Please enter a file containing the initial board state. e.g. input.txt :  ")
 #todo, handle quotes or no quotes
@@ -115,11 +116,11 @@ println("Now solving for $(maxDuration) seconds.")
 
 
 #finished, runTime, solnMoveSeq = doSolve(board,gameState, maxDuration)
-goal = @time findGoal2(gameState, board)
+goal = @time findGoal3(gameState, board)
 for item in getPath(goal)
   println(item)
 end
-
+end
 
 # println("Sokoban solving terminated in $(runTime) seconds.")
 # println("Did it finish?  $(finished)")

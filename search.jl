@@ -17,7 +17,7 @@ type StateWrapper
 
 #             end
 #   hash(x) =
-  isless(x,y) = x.f < y.f ? true : false 
+  isless(x,y) = x.f < y.f ? true : false
 end
 
 function equalStates(x::State, y::State)
@@ -88,7 +88,7 @@ function findGoal(currentState::State, board::Board)
     while(length(openlist) > 0)
       state = shift!(openlist)
       #state = delete!(openlist)
-      
+
       #println("state: $state")
       #println("openlist: $openlist")
       #readline(STDIN)
@@ -178,12 +178,12 @@ function findGoal2(currentState::State, board::Board)
             #state.f = state.s.hVal + state.g
             if state.f <= pathlimit
                 #push!(closedlist, state)
-                closedlist[state.s] = state.g 
+                closedlist[state.s] = state.g
     #            push!(closedlist, state.s)
                 for child in getChildren(state, board)
                     oldVal = get(closedlist,child.s,child.g)
                     oldVal < child.g ?  continue : closedlist[child.s] = child.g
-                    
+
                     # if haskey(closedlist, child)
                     #     #println("closed")
                     #     continue
@@ -212,7 +212,7 @@ function findGoal2(currentState::State, board::Board)
             end
         end
 
-        
+
         # println("it: $it")
         # if (length(visitlist) <= 0)
         #     println("didn't find answer")
@@ -233,6 +233,46 @@ function findGoal2(currentState::State, board::Board)
             enqueue!(openlist, item, item.f)
         end
         #enqueue!(openlist, visitlist)
+    end
+
+end
+
+function findGoal3(currentState::State, board::Board)
+
+    #closedlist = Dict{State,Int64}()
+    current = StateWrapper(currentState, 0, 0, 'x')
+    current.f = current.g + current.s.hVal
+    #pathlimit = currentState.hVal - 1
+    pathlimit = current.f + 1 #alex mentioned dfs works fast for small boards, lets try this?
+    it = 0
+
+    while pathlimit < 10000000000
+      openlist = StateWrapper[]
+      push!(openlist, current)
+      while length(openlist) > 0
+        state = shift!(openlist)
+        if state.s.hVal == 0
+          return state
+        end
+
+        childList = Collections.PriorityQueue()
+        for c in getChildren(state, board)
+          c.g = state.g + 1
+          c.f = c.s.hVal + c.g
+          enqueue!(childList, c, c.f)
+        end
+
+        while length(childList) > 0
+          newChild = dequeue!(childList)
+          if newChild.f > pathlimit
+            break
+          end
+          unshift!(openlist, newChild)
+        end
+      end
+      pathlimit += 1
+      it += 1
+      println("pathlimit: $pathlimit, it: $it")
     end
 
 end

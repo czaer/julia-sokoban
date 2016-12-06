@@ -24,14 +24,14 @@ type State
     guy::Array{Int64,1}
     boxes::Array{Array{Int64,1},1}
     hVal::Int64
-    State(guy, boxes, board::Board) = new(guy,boxes,computeHcl(guy, boxes, board))
+    State(guy, boxes, board::Board) = new(guy,boxes,computeHDumbGuy(guy, boxes, board))
     hash(x)  =  begin
                 hsh = squares[guy[1],guy[2]]
                 for box in x.boxes
                     hsh = hsh $ squares[box[1],box[2]]
                 end
                 return hsh % 941083987
-            end  
+            end
     ==(x,y) =   begin
                     # x.guy == y.guy ? nothing : return false
                     # x.guy == y.guy
@@ -46,12 +46,12 @@ end
 
 function setGuy(newGuy::Array{Int64,1}, state::State, board::Board)
     state.guy = newGuy
-    computeH!(state, board)
+    #computeH!(state, board)
 end
 
 function setBoxes(newBoxes::Array{Array{Int64,1},1}, state::State, board::Board)
     state.boxes = newBoxes
-    computeH!(state, board)
+    #computeH!(state, board)
 end
 
 #if a move is allowed, generates a new state after the move and returns that and true
@@ -118,11 +118,12 @@ function move(direction::Char, state::State, board::Board)
         setGuy(guyDest, newState, board)
         moveExecuted = true
     end
+    computeH!(newState, board)
     moveExecuted, newState
 end
 
 function computeH!(state::State, board::Board)
-    state.hVal = computeHcl(state.guy, state.boxes, board)
+    state.hVal = computeHDumbGuy(state.guy, state.boxes, board)
 end
 
 function generatePref(men::Array{Int64,1}, women::Array{Array{Int64,1},1})
@@ -241,6 +242,32 @@ function computeHInitOld(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, boa
     #println(state.hVal)
 end
 
+function computeHDumbGuy(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
+  h = length(board.switches)
+  for box in boxes
+      if in(box, board.switches)
+          #println("found")
+          h-=1
+      end
+  end
+  if h == 0
+    return h
+  else
+    closest = 1000
+    for b in boxes
+      if in(b, board.switches)
+        continue
+      else
+        dist = abs(b[1] - guy[1]) + abs(b[2] - guy[2])
+        if dist < closest
+          closest = dist
+        end
+      end
+    end
+    return h + closest
+  end
+end
+
 function computeHcl(guy::Array{Int64,1},boxes::Array{Array{Int64,1},1}, board::Board)
     totDist = 0
     for box in boxes
@@ -264,4 +291,3 @@ function clSwitchDist(box, board::Board)
     end
     minFuck
 end
-
